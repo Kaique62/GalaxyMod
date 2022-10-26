@@ -21,7 +21,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxAxes;
 import flixel.util.FlxColor;
-import io.newgrounds.NG;
 import lime.app.Application;
 import lime.utils.Assets;
 
@@ -316,21 +315,21 @@ class KeyBindMenu extends FlxSubState
 		switch (state)
 		{
 			case "select":
-				if (controls.LEFT_UI)
+				if (controls.LEFT_P)
 				{
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					changeItem(-1);
 					textUpdate();
 				}
 
-				if (controls.RIGHT_UI)
+				if (controls.RIGHT_P)
 				{
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					changeItem(1);
 					textUpdate();
 				}
 
-				if (!KeyBinds.gamepad && (controls.UP_UI || controls.DOWN_UI))
+				if (!KeyBinds.gamepad && (controls.UP_P || controls.DOWN_P))
 				{
 					FlxG.sound.play(Paths.sound('scrollMenu'));
 					changeItem(keys.length);

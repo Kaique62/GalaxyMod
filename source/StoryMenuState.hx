@@ -271,6 +271,10 @@ class StoryMenuState extends MusicBeatState
 
 		trace("Line 165");
 
+		#if mobileC
+		addVirtualPad(FULL, A_B);
+		#end
+
 		super.create();
 	}
 
@@ -283,57 +287,34 @@ class StoryMenuState extends MusicBeatState
 			var others:Bool = false;
 			if (!selectedWeek)
 			{
-				if (controls.UP_UI || FlxG.mouse.wheel > 0)
+				if (controls.UP_P)
 				{
 					changeWeek(-1);
 				}
 
-				if (controls.DOWN_UI || FlxG.mouse.wheel < 0)
+				if (controls.DOWN_P)
 				{
 					changeWeek(1);
 				}
 
-				if (controls.RIGHT_UI_H)
+				if (controls.RIGHT_P)
 					rightArrow.animation.play('press');
 				else
 					rightArrow.animation.play('idle');
 
-				if (controls.LEFT_UI_H)
+				if (controls.LEFT_P)
 					leftArrow.animation.play('press');
 				else
 					leftArrow.animation.play('idle');
 
-				if (FlxG.mouse.screenX > rightArrow.x
-					&& FlxG.mouse.screenX < rightArrow.x + rightArrow.width
-					&& FlxG.mouse.screenY > rightArrow.y
-					&& FlxG.mouse.screenY < rightArrow.y + rightArrow.height
-					&& MusicBeatState.mouseA)
-				{
-					rightArrow.animation.play('press');
-					others = true;
-					if (FlxG.mouse.justPressed)
-						changeDifficulty(1);
-				}
 
-				if (FlxG.mouse.screenX > leftArrow.x
-					&& FlxG.mouse.screenX < leftArrow.x + leftArrow.width
-					&& FlxG.mouse.screenY > leftArrow.y
-					&& FlxG.mouse.screenY < leftArrow.y + leftArrow.height
-					&& MusicBeatState.mouseA)
-				{
-					leftArrow.animation.play('press');
-					others = true;
-					if (FlxG.mouse.justPressed)
-						changeDifficulty(-1);
-				}
-
-				if (controls.RIGHT_UI)
+				if (controls.RIGHT_P)
 					changeDifficulty(1);
-				if (controls.LEFT_UI)
+				if (controls.LEFT_P)
 					changeDifficulty(-1);
 			}
 
-			if (controls.ACCEPT || (!others && FlxG.mouse.justPressed))
+			if (controls.ACCEPT)
 			{
 				selectWeek();
 			}

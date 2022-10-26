@@ -2,7 +2,6 @@ package;
 
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.text.FlxTypeText;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.group.FlxSpriteGroup;
@@ -11,6 +10,7 @@ import flixel.math.FlxMath;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
+import ui.FlxVirtualPad;
 
 using StringTools;
 
@@ -30,6 +30,7 @@ class ResultScreen extends FlxSpriteGroup
 	var wrongtxt:FlxText;
 	var chara:FlxSprite;
 	var rating:FlxSprite;
+	var _pad:FlxVirtualPad;
 
 	var lerpscore:Int = 0;
 	var lerpacc:Float = 0;
@@ -166,15 +167,14 @@ class ResultScreen extends FlxSpriteGroup
 			add(wrongtxt);
 		}
 		FlxG.sound.playMusic(Paths.music('result'));
+
+		_pad = new FlxVirtualPad(NONE, A);
+		_pad.alpha = 0.75;
+		add(_pad);
 	}
 
 	public function load()
 	{
-		if (FlxGameJolt.initialized)
-		{
-			var trop = new Welcome(1, Main.syncTrophy());
-			add(trop);
-		}
 	}
 
 	override function update(elapsed:Float)
@@ -247,7 +247,7 @@ class ResultScreen extends FlxSpriteGroup
 			{
 				wrongtxt.alpha += 0.05;
 			}
-			if ((controls.ACCEPT || controls.BACK) && !ended)
+			if ((controls.ACCEPT || controls.BACK || _pad.buttonA.justPressed) && !ended)
 			{
 				end();
 				ended = true;

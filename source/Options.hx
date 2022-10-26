@@ -1,9 +1,7 @@
 package;
 
-import AccountSubStates;
 import Controls.KeyboardScheme;
 import flixel.FlxG;
-import flixel.addons.api.FlxGameJolt;
 import flixel.util.FlxColor;
 import lime.app.Application;
 import lime.system.DisplayMode;
@@ -380,7 +378,24 @@ class ShowFPSOption extends Option
 		return !FlxG.save.data.showFPS;
 	}
 }
+class CustomControls extends Option
+{
+	public function new(desc:String)
+	{
+		super();
+		description = desc;
+	}
+	public override function press():Bool
+	{
+		FlxG.switchState(new ui.CustomControlsState());
+		return true;
+	}
+	private override function updateDisplay():String
+	{
+		return "Mobile Custom Controls";
+	}
 
+}
 class FPSOption extends Option
 {
 	public function new(desc:String)
@@ -432,61 +447,7 @@ class FPSOption extends Option
 	}
 }
 
-class AccountOption extends Option
-{
-	public function new(desc:String)
-	{
-		super();
-	}
 
-	public function log()
-	{
-		display = updateDisplay();
-		display2 = updateDisplay2();
-		OptionsMenu.instance.updateAccount();
-	}
-
-	public override function press():Bool
-	{
-		if (!FlxGameJolt.initialized)
-		{
-			OptionsMenu.instance.openSubState(new LogInScreen(this));
-		}
-		else
-		{
-			OptionsMenu.instance.acceptInput = false;
-			var text:String = "Are you sure to log out your account? (The game will close)";
-			if (FlxG.save.data.lang == 1)
-				text = "你確定要登出嗎? (遊戲將會退出)";
-			OptionsMenu.instance.openSubState(new ConfirmSubState(text, function()
-			{
-				FlxG.save.data.userName = null;
-				FlxG.save.data.userToken = null;
-				FlxG.save.data.trophies = [];
-				FlxG.save.data.trophiesC = [];
-				Lib.application.window.close();
-			}, false, function()
-			{
-				OptionsMenu.instance.acceptInput = true;
-			}));
-		}
-		return false;
-	}
-
-	private override function updateDisplay():String
-	{
-		if (!FlxGameJolt.initialized)
-			return "GameJolt Log In";
-		return "GameJolt Log Out";
-	}
-
-	private override function updateDisplay2():Array<String>
-	{
-		if (!FlxGameJolt.initialized)
-			return [""];
-		return [FlxG.save.data.userName];
-	}
-}
 
 class DataOption extends Option
 {
@@ -497,7 +458,7 @@ class DataOption extends Option
 
 	public override function press():Bool
 	{
-		OptionsMenu.instance.openSubState(new DataScreen());
+		//OptionsMenu.instance.openSubState(new DataScreen());
 		return false;
 	}
 
@@ -517,9 +478,6 @@ class AutoSyncOption extends Option
 
 	public override function press():Bool
 	{
-		FlxG.save.data.autoUpload = !FlxG.save.data.autoUpload;
-		if (FlxG.save.data.autoUpload && FlxGameJolt.initialized)
-			Main.syncData();
 		return true;
 	}
 
@@ -531,5 +489,5 @@ class AutoSyncOption extends Option
 	public override function updateCheck():Bool
 	{
 		return FlxG.save.data.autoUpload;
-	}
+	}	
 }

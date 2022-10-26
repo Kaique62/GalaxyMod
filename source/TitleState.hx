@@ -7,7 +7,6 @@ import sys.thread.Thread;
 import flixel.FlxG;
 import flixel.FlxSprite;
 import flixel.FlxState;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.transition.FlxTransitionSprite.GraphicTransTileDiamond;
 import flixel.addons.transition.FlxTransitionableState;
@@ -26,7 +25,6 @@ import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
 import flixel.util.FlxTimer;
-import io.newgrounds.NG;
 import lime.app.Application;
 import openfl.Assets;
 import openfl.Lib;
@@ -51,10 +49,6 @@ class TitleState extends MusicBeatState
 
 	override public function create():Void
 	{
-		#if polymod
-		polymod.Polymod.init({modRoot: "mods", dirs: ['introMod']});
-		#end
-
 		PlayerSettings.init();
 
 		curWacky = FlxG.random.getObject(getIntroTextShit());
@@ -86,13 +80,6 @@ class TitleState extends MusicBeatState
 		{
 			FlxG.save.data.weekPassed = StoryMenuState.weekPassed;
 		}
-
-		FlxGameJolt.init(APIStuff.gameID, APIStuff.privateKey, FlxG.save.data.userName != null, FlxG.save.data.userName, FlxG.save.data.userToken,
-			function(what:Bool)
-			{
-				if (what)
-					welcome = new Welcome();
-			});
 
 		#if FREEPLAY
 		FlxG.switchState(new FreeplayState());

@@ -204,6 +204,8 @@ class FreeplayState extends MusicBeatState
 			trace(md);
 		 */
 
+
+		 addVirtualPad(FULL, A_B);
 		super.create();
 	}
 
@@ -284,72 +286,15 @@ class FreeplayState extends MusicBeatState
 			otherText.text = "Accuracy:" + lerpAcc + "%\nCombo:" + lerpCombo + fc + "\n";
 		scoreBG.makeGraphic(Std.int(FlxG.width * 0.35), 115, tarc);
 
-		var upP = controls.UP_UI;
-		var downP = controls.DOWN_UI;
+		var upP = controls.UP_P;
+		var downP = controls.DOWN_P;
 		var accepted = controls.ACCEPT;
 
-		if (FlxG.mouse.screenX > scoreBG.x
-			&& FlxG.mouse.screenX < scoreBG.x + scoreBG.width
-			&& FlxG.mouse.screenY > scoreBG.y
-			&& FlxG.mouse.screenY < scoreBG.y + scoreBG.height)
-		{
-			var tarc:FlxColor = 0xFF646464;
-			if (intendedAcc == 100)
-				tarc = 0xFFffff64;
-			else if (intendedAcc >= 95)
-				tarc = 0xFFffffff;
-			else if (intendedAcc >= 90)
-				tarc = 0xFFff64ff;
-			else if (intendedAcc >= 80)
-				tarc = 0xFFff6464;
-			else if (intendedAcc >= 70)
-				tarc = 0xFF64ff64;
-			else if (intendedAcc > 0)
-				tarc = 0xFFebebeb;
-			scoreBG.makeGraphic(Std.int(FlxG.width * 0.35), 115, tarc);
-			if (FlxG.mouse.justPressed)
-				changeDiff(1);
-		}
+
 
 		var bruh:Int = 0;
 		var brighter:Int = -1;
-		for (item in grpSongs.members)
-		{
-			if (FlxG.mouse.screenX > item.x
-				&& FlxG.mouse.screenX < item.x + item.width
-				&& FlxG.mouse.screenY > item.y
-				&& FlxG.mouse.screenY < item.y + item.height
-				&& MusicBeatState.mouseA)
-			{
-				brighter = bruh;
-				if (FlxG.mouse.justPressed)
-				{
-					if (curSelected == bruh)
-						accepted = true;
-					else
-						changeSelection(bruh - curSelected);
-				}
-			}
-			bruh += 1;
-		}
-		for (i in 0...iconArray.length)
-		{
-			if (FlxG.mouse.screenX > iconArray[i].x
-				&& FlxG.mouse.screenX < iconArray[i].x + iconArray[i].width
-				&& FlxG.mouse.screenY > iconArray[i].y
-				&& FlxG.mouse.screenY < iconArray[i].y + iconArray[i].height
-				&& MusicBeatState.mouseA)
-			{
-				brighter = i;
-				if (FlxG.mouse.justPressed)
-				{
-					if (curSelected == bruh)
-						accepted = true;
-					else
-						changeSelection(i - curSelected);
-				}
-			}
-		}
+
 		var bruh = 0;
 		for (item in grpSongs.members)
 		{
@@ -382,9 +327,9 @@ class FreeplayState extends MusicBeatState
 			changeSelection(1);
 		}
 
-		if (controls.LEFT_UI)
+		if (controls.LEFT_P)
 			changeDiff(-1);
-		if (controls.RIGHT_UI)
+		if (controls.RIGHT_P)
 			changeDiff(1);
 
 		if (controls.BACK)

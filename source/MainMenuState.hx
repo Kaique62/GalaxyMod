@@ -6,7 +6,6 @@ import Discord.DiscordClient;
 import flixel.FlxG;
 import flixel.FlxObject;
 import flixel.FlxSprite;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.effects.FlxFlicker;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -16,7 +15,6 @@ import flixel.text.FlxText;
 import flixel.tweens.FlxEase;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxColor;
-import io.newgrounds.NG;
 import lime.app.Application;
 import openfl.Lib;
 
@@ -58,12 +56,6 @@ class MainMenuState extends MusicBeatState
 
 	override function load()
 	{
-		if (FlxGameJolt.initialized)
-		{
-			trops = new Welcome(1, Main.syncTrophy());
-		}
-		if (FlxG.save.data.autoUpload && FlxGameJolt.initialized)
-			Main.syncData();
 		LoadingState.progress += 25;
 
 		stars = new FlxTypedGroup<NoteObject>();
@@ -214,6 +206,8 @@ class MainMenuState extends MusicBeatState
 
 		optioned = false;
 
+		addVirtualPad(UP_DOWN, A);
+
 		super.create();
 	}
 
@@ -315,13 +309,13 @@ class MainMenuState extends MusicBeatState
 						enter = true;
 				}
 			});
-			if ((controls.UP_UI || FlxG.mouse.wheel > 0) && !ConfirmSubState.inconfirm)
+			if ((controls.UP_P || FlxG.mouse.wheel > 0) && !ConfirmSubState.inconfirm)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(-1);
 			}
 
-			if ((controls.DOWN_UI || FlxG.mouse.wheel < 0) && !ConfirmSubState.inconfirm)
+			if ((controls.DOWN_P || FlxG.mouse.wheel < 0) && !ConfirmSubState.inconfirm)
 			{
 				FlxG.sound.play(Paths.sound('scrollMenu'));
 				changeItem(1);

@@ -146,6 +146,8 @@ class CreditState extends MusicBeatState
 
 		changeSelection(0);
 
+		addVirtualPad(FULL, A_B);
+
 		super.create();
 	}
 
@@ -196,9 +198,9 @@ class CreditState extends MusicBeatState
 			bruh += 1;
 		}
 
-		if (controls.UP_UI || FlxG.mouse.wheel > 0)
+		if (controls.UP_P || FlxG.mouse.wheel > 0)
 			changeSelection(-1);
-		if (controls.DOWN_UI || FlxG.mouse.wheel < 0)
+		if (controls.DOWN_P || FlxG.mouse.wheel < 0)
 			changeSelection(1);
 
 		bruh = 0;
@@ -227,7 +229,7 @@ class CreditState extends MusicBeatState
 			bruh += 1;
 		}
 
-		if (controls.LEFT_UI)
+		if (controls.LEFT_P)
 		{
 			FlxG.sound.play(Paths.sound("scrollMenu"), 0.4);
 			curlink -= 1;
@@ -236,7 +238,7 @@ class CreditState extends MusicBeatState
 				curlink = sites.length - 1;
 			}
 		}
-		if (controls.RIGHT_UI)
+		if (controls.RIGHT_P)
 		{
 			FlxG.sound.play(Paths.sound("scrollMenu"), 0.4);
 			curlink += 1;

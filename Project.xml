@@ -39,6 +39,11 @@
 	<set name="BUILD_DIR" value="export/32bit" if="32bit" />
 
 	<classpath name="source" />
+	<assets path="assets/shared/images/hitbox"/>
+	<haxelib name="extension-androidtools" if="android"/>
+	<android permission="android.permission.ACCESS_NETWORK_STATE"/>
+	<android permission="android.permission.INTERNET"/>
+	<define name="mobileC"/>
 
 	<assets path="assets/preload" rename="assets" exclude="*.ogg" if="web"/>
 	<assets path="assets/preload" rename="assets" exclude="*.mp3" unless="web"/>
@@ -93,11 +98,11 @@
 
 	<!--In case you want to use the ui package-->
 	<haxelib name="flixel-ui" />
-	<haxelib name="newgrounds"/>
 	<haxelib name="faxe" if='switch'/>
 	<haxelib name="polymod"/>
 	<haxelib name="discord_rpc" if="desktop"/>
 	<haxelib name="hxCodec" if="desktop || android" />
+	<haxelib name="extension-videoview"/>
 	<!-- <haxelib name="hxcpp-debug-server" if="desktop"/> -->
 
 	<!-- <haxelib name="markdown" /> -->

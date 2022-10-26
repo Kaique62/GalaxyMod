@@ -9,6 +9,10 @@ import flixel.addons.ui.FlxUI;
 import flixel.addons.ui.FlxUIState;
 import flixel.math.FlxRect;
 import flixel.util.FlxTimer;
+#if mobileC
+import ui.FlxVirtualPad;
+#end
+import flixel.input.actions.FlxActionInput;
 
 class MusicBeatState extends FlxUIState
 {
@@ -26,6 +30,34 @@ class MusicBeatState extends FlxUIState
 
 	inline function get_controls():Controls
 		return PlayerSettings.player1.controls;
+
+	#if mobileC
+	var _virtualpad:FlxVirtualPad;
+
+	var trackedinputs:Array<FlxActionInput> = [];
+
+	// adding virtualpad to state
+	public function addVirtualPad(?DPad:FlxDPadMode, ?Action:FlxActionMode) {
+		_virtualpad = new FlxVirtualPad(DPad, Action);
+		_virtualpad.alpha = 0.75;
+		add(_virtualpad);
+		controls.setVirtualPad(_virtualpad, DPad, Action);
+		trackedinputs = controls.trackedinputs;
+		controls.trackedinputs = [];
+
+		#if android
+		controls.addAndroidBack();
+		#end
+	}
+
+	override function destroy() {
+		controls.removeFlxInput(trackedinputs);
+
+		super.destroy();
+	}
+	#else
+	public function addVirtualPad(?DPad, ?Action){};
+	#end
 
 	override function create()
 	{
@@ -127,13 +159,13 @@ class MusicBeatState extends FlxUIState
 			switch (FlxG.save.data.mouse)
 			{
 				case 1:
-					FlxG.mouse.visible = true;
+					FlxG.mouse.visible = false;
 					FlxG.mouse.useSystemCursor = true;
 				case 2:
 					FlxG.mouse.visible = false;
 					mouseA = false;
 				default:
-					FlxG.mouse.visible = true;
+					FlxG.mouse.visible = false;
 					FlxG.mouse.useSystemCursor = false;
 			}
 		}

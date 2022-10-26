@@ -1,7 +1,6 @@
 package;
 
 import flixel.FlxG;
-import flixel.addons.api.FlxGameJolt;
 
 class Highscore
 {
@@ -41,7 +40,7 @@ class Highscore
 		else
 			setCombo(daSong, com);
 
-		#if PRELOAD_ALL
+	/*	#if PRELOAD_ALL
 		if (APIStuff.boards.exists(song) && FlxGameJolt.initialized)
 		{
 			var task = true;
@@ -62,7 +61,7 @@ class Highscore
 				Main.syncData();
 			}
 		}
-		#end
+		#end */
 	}
 
 	public static function saveWeekScore(week:Int = 1, score:Int = 0, ?diff:Int = 0):Void

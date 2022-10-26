@@ -3,7 +3,6 @@ package;
 import flixel.FlxG;
 import flixel.FlxGame;
 import flixel.FlxState;
-import flixel.addons.api.FlxGameJolt;
 import haxe.Timer;
 import openfl.Assets;
 import openfl.Lib;
@@ -12,6 +11,15 @@ import openfl.display.Sprite;
 import openfl.events.Event;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
+
+import lime.app.Application;
+import openfl.events.UncaughtErrorEvent;
+import haxe.CallStack;
+import haxe.io.Path;
+import sys.FileSystem;
+import sys.io.File;
+import sys.io.Process;
+import lime.system.System;
 
 class Main extends Sprite
 {
@@ -25,6 +33,8 @@ class Main extends Sprite
 
 	public static var fps:FPSCounter;
 	public static var base:Main;
+
+	public static var path:String = System.applicationStorageDirectory;
 
 	// You can pretty much ignore everything from here on - your code should go in your states.
 
@@ -72,6 +82,14 @@ class Main extends Sprite
 			gameHeight = Math.ceil(stageHeight / zoom);
 		}
 
+		SUtil.check();
+
+		#if mobile
+		gameWidth = 1280;
+		gameHeight = 720;
+		zoom = 1;
+		#end
+
 		#if !debug
 		initialState = TitleState;
 		#end
@@ -85,13 +103,14 @@ class Main extends Sprite
 
 		addChild(new FlxGame(gameWidth, gameHeight, initialState, zoom, framerate, framerate, skipSplash, startFullscreen));
 
-		#if !mobile
+
 		fps = new FPSCounter(10, 3, 0xFFFFFF);
 		fps.visible = !FlxG.save.data.showFPS;
 		addChild(fps);
-		#end
+
 
 		FlxG.autoPause = false;
+		FlxG.mouse.visible = false;
 	}
 
 	public static function clearCache()
@@ -110,151 +129,6 @@ class Main extends Sprite
 		Assets.cache.clear("songs");
 	}
 
-	public static function syncTrophy():Array<Int>
-	{
-		var tro:Array<Int> = [];
-		if (FlxG.save.data.trophies == null)
-			return [];
-		if (FlxG.save.data.trophiesC == null)
-			FlxG.save.data.trophiesC = [];
-		var kk:Array<Int> = FlxG.save.data.trophies.copy();
-		var ss:Array<Int> = FlxG.save.data.trophiesC.copy();
-		for (i in ss)
-			kk.remove(i);
-		trace(FlxG.save.data.trophiesC);
-		for (i in kk)
-		{
-			var e:Bool = true;
-			FlxGameJolt.fetchTrophy(i, function(a:Dynamic)
-			{
-				trace(a);
-				var m = true;
-				if (!a.get("achieved"))
-				{
-					FlxGameJolt.addTrophy(i, function(z:Dynamic)
-					{
-						if (z.get("success"))
-							FlxG.save.data.trophiesC.push(i);
-						m = false;
-					});
-					tro.push(i);
-				}
-				else
-				{
-					m = false;
-					FlxG.save.data.trophiesC.push(i);
-				}
-				var k:Int = 0;
-				while (m && k < 30)
-				{
-					k += 1;
-					#if PRELOAD_ALL
-					Sys.sleep(0.1);
-					#end
-				}
-				e = false;
-			});
-			var k:Int = 0;
-			while (e && k < 30)
-			{
-				k += 1;
-				#if PRELOAD_ALL
-				Sys.sleep(0.1);
-				#end
-			}
-		}
-		trace(FlxG.save.data.trophies);
-		return tro;
-	}
-
-	public static function syncData()
-	{
-		var save:Saving = new Saving();
-		base.addChild(save);
-		#if PRELOAD_ALL
-		sys.thread.Thread.create(() ->
-		{
-			var task:Bool = true;
-
-			var wp:String = "";
-			task = true;
-			for (i in StoryMenuState.weekPassed)
-			{
-				for (j in i)
-				{
-					wp += j ? "1" : "0";
-					wp += ",";
-				}
-				wp = wp.substr(0, wp.length - 1);
-				wp += ";";
-			}
-			wp = wp.substr(0, wp.length - 1);
-			FlxGameJolt.setData("weekPassed", wp, true, function(e:Dynamic)
-			{
-				task = false;
-			});
-
-			var sc:String = "";
-			var k:Int = 0;
-			while (task)
-				Sys.sleep(0.1);
-			task = true;
-			for (i in Highscore.songScores.keys())
-			{
-				sc += i + ":" + Highscore.songScores.get(i) + ",";
-			}
-			sc = sc.substr(0, sc.length - 1);
-			FlxGameJolt.setData("songScores", sc, true, function(e:Dynamic)
-			{
-				task = false;
-			});
-
-			var sa:String = "";
-			var k:Int = 0;
-			while (task && k < 30)
-			{
-				k += 1;
-				Sys.sleep(0.1);
-			}
-			task = true;
-			for (i in Highscore.songAccs.keys())
-			{
-				sa += i + ":" + Highscore.songAccs.get(i) + ",";
-			}
-			sa = sa.substr(0, sa.length - 1);
-			FlxGameJolt.setData("songAccs", sa, true, function(e:Dynamic)
-			{
-				task = false;
-			});
-
-			var sco:String = "";
-			var k:Int = 0;
-			while (task && k < 30)
-			{
-				k += 1;
-				Sys.sleep(0.1);
-			}
-			task = true;
-			for (i in Highscore.songCombos.keys())
-			{
-				sco += i + ":" + Highscore.songCombos.get(i) + ",";
-			}
-			sco = sco.substr(0, sco.length - 1);
-			FlxGameJolt.setData("songCombos", sco, true, function(e:Dynamic)
-			{
-				task = false;
-			});
-
-			var k:Int = 0;
-			while (task && k < 30)
-			{
-				k += 1;
-				Sys.sleep(0.1);
-			}
-			base.removeChild(save);
-		});
-		#end
-	}
 }
 
 class Saving extends TextField
@@ -306,4 +180,42 @@ class Saving extends TextField
 		}
 		x = Lib.application.window.width - 200;
 	}
+	#if android
+	function onCrash(e:UncaughtErrorEvent):Void
+		{
+			var errMsg:String = "";
+			var path:String;
+			var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+			var dateNow:String = Date.now().toString();
+	
+			
+	
+			path = SUtil.getPath() + "crash/" + "PsychEngine_" + dateNow + ".txt";
+	
+			for (stackItem in callStack)
+			{
+				switch (stackItem)
+				{
+					case FilePos(s, file, line, column):
+						errMsg += file + " (line " + line + ")\n";
+					default:
+						Sys.println(stackItem);
+				}
+			}
+	
+			errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/KaiqueAlt/Megamix-v3/\n\n> Crash Handler written by: sqirra-rng";
+	
+			if (!FileSystem.exists(SUtil.getPath() + "crash/"))
+				FileSystem.createDirectory(SUtil.getPath() + "crash/");
+	
+			File.saveContent(path, errMsg + "\n");
+	
+			Sys.println(errMsg);
+			Sys.println("Crash dump saved in " + Path.normalize(path));
+	
+			Application.current.window.alert(errMsg, "Error!");
+
+			Sys.exit(1);
+		}
+		#end	
 }

@@ -6,7 +6,6 @@ import flash.text.TextField;
 import flixel.FlxBasic;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.transition.FlxTransitionableState;
 import flixel.group.FlxGroup.FlxTypedGroup;
@@ -40,6 +39,7 @@ class OptionsMenu extends MusicBeatState
 	override function load()
 	{
 		options.push(new OptionCategory("Preferences", [
+			new CustomControls("Custom controls for mobile!"),
 			new DownscrollOption("Toggle making the notes scroll down rather than up."),
 			new SplashOption("enble/disable notesplashes when hitting sick."),
 			new ProgressOption("Actully words here will not be shown"),
@@ -50,13 +50,6 @@ class OptionsMenu extends MusicBeatState
 		]));
 		LoadingState.progress = 25;
 		options.push(new OptionCategory("Controls", [new DFJKOption(controls), new UIKeyOption(controls)]));
-		LoadingState.progress += 25;
-		options.push(new OptionCategory("Account", [new AccountOption("account")]));
-		if (FlxGameJolt.initialized)
-		{
-			options[2].addOption(new DataOption("bruh"));
-			options[2].addOption(new AutoSyncOption("bruh"));
-		}
 		LoadingState.progress += 25;
 		options.push(new OptionCategory("Exit", []));
 		LoadingState.progress += 25;
@@ -92,6 +85,8 @@ class OptionsMenu extends MusicBeatState
 		}
 
 		changeSelection();
+
+		addVirtualPad(FULL, A_B);
 
 		super.create();
 	}
@@ -130,16 +125,16 @@ class OptionsMenu extends MusicBeatState
 				changeSelection(curSelected);
 			}
 
-			if (controls.UP_UI || FlxG.mouse.wheel > 0)
+			if (controls.UP_P || FlxG.mouse.wheel > 0)
 				changeSelection(-1);
-			if (controls.DOWN_UI || FlxG.mouse.wheel < 0)
+			if (controls.DOWN_P || FlxG.mouse.wheel < 0)
 				changeSelection(1);
 
 			if (isCat)
 			{
 				if (currentSelectedCat.getOptions()[curSelected].getAccept())
 				{
-					if (controls.RIGHT_UI)
+					if (controls.RIGHT_P)
 					{
 						if (currentSelectedCat.getOptions()[curSelected].right())
 						{
@@ -149,7 +144,7 @@ class OptionsMenu extends MusicBeatState
 							trace(currentSelectedCat.getOptions()[curSelected].getDisplay());
 						}
 					}
-					if (controls.LEFT_UI)
+					if (controls.LEFT_P)
 					{
 						if (currentSelectedCat.getOptions()[curSelected].left())
 						{
@@ -159,7 +154,7 @@ class OptionsMenu extends MusicBeatState
 							trace(currentSelectedCat.getOptions()[curSelected].getDisplay());
 						}
 					}
-					if (controls.LEFT_UI_H)
+					if (controls.LEFT_P)
 					{
 						holdt[0] += elapsed;
 						if (holdt[0] >= 0.53)
@@ -175,7 +170,7 @@ class OptionsMenu extends MusicBeatState
 					}
 					else
 						holdt[0] = 0;
-					if (controls.RIGHT_UI_H)
+					if (controls.RIGHT_P)
 					{
 						holdt[1] += elapsed;
 						if (holdt[1] >= 0.53)
@@ -197,25 +192,7 @@ class OptionsMenu extends MusicBeatState
 			var bruh:Int = 0;
 			var brighter:Int = -1;
 			var enter:Bool = false;
-			for (item in grpControls.members)
-			{
-				if (FlxG.mouse.screenX > item.x
-					&& FlxG.mouse.screenX < item.x + item.width
-					&& FlxG.mouse.screenY > item.y
-					&& FlxG.mouse.screenY < item.y + item.height
-					&& MusicBeatState.mouseA)
-				{
-					brighter = bruh;
-					if (FlxG.mouse.justPressed)
-					{
-						if (curSelected == bruh)
-							enter = true;
-						else
-							changeSelection(bruh - curSelected);
-					}
-				}
-				bruh += 1;
-			}
+
 			var bruh = 0;
 			for (item in grpControls.members)
 			{
@@ -312,55 +289,6 @@ class OptionsMenu extends MusicBeatState
 
 	var isSettingControl:Bool = false;
 
-	public function updateAccount()
-	{
-		options[2].addOption(new DataOption("bruh"));
-		options[2].addOption(new AutoSyncOption("bruh"));
-
-		currentSelectedCat = options[2];
-		isCat = true;
-		grpControls.clear();
-		grpChildren.clear();
-		for (i in 0...currentSelectedCat.getOptions().length)
-		{
-			var ox:Float = currentSelectedCat.getOptions()[i].hascheckbox ? 130 : 50;
-			var controlLabel:Alphabet = new Alphabet(ox, (100 * i) + (FlxG.height * 0.48), currentSelectedCat.getOptions()[i].getDisplay(), true, false);
-			controlLabel.isOption = true;
-			controlLabel.targetY = i;
-			grpControls.add(controlLabel);
-			if (currentSelectedCat.getOptions()[i].hascheckbox)
-			{
-				var cb = new FlxSprite(25, (100 * i) + (FlxG.height * 0.48) - 15);
-				cb.frames = Paths.getSparrowAtlas('checkbox');
-				cb.animation.addByPrefix('none', 'checkbox0', 24, false);
-				cb.animation.addByPrefix('check', 'checkbox anim0', 24, false);
-				cb.animation.addByPrefix('uncheck', 'checkbox anim reverse', 24, false);
-				cb.animation.addByPrefix('finish', 'checkbox finish', 24, false);
-				cb.animation.play("none");
-				cb.antialiasing = true;
-				cb.setGraphicSize(0, 70);
-				cb.updateHitbox();
-				cb.animation.play(currentSelectedCat.getOptions()[i].updateCheck() ? "finish" : "none");
-				grpChildren.add(cb);
-				controlLabel.checkbox = cb;
-			}
-			var sx = controlLabel.x + controlLabel.sumwidth + 60;
-			for (j in 0...currentSelectedCat.getOptions()[i].getDisplay2().length)
-			{
-				var child:Alphabet = new Alphabet(sx, (100 * i) + (FlxG.height * 0.48), currentSelectedCat.getOptions()[i].getDisplay2()[j], false, false);
-				child.isOption = true;
-				child.targetY = i;
-				grpChildren.add(child);
-				controlLabel.children.push(child);
-				sx += child.sumwidth + 60;
-			}
-			// DONT PUT X IN THE FIRST PARAMETER OF new ALPHABET() !!
-		}
-		curSelected = 0;
-
-		var welcome = new Welcome();
-		add(welcome);
-	}
 
 	function changeSelection(change:Int = 0)
 	{

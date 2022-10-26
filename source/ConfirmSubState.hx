@@ -173,7 +173,7 @@ class ConfirmSubState extends MusicBeatSubstate
 				}
 			}
 
-			if (controls.LEFT_UI || controls.RIGHT_UI)
+			if (controls.LEFT_P || controls.RIGHT_P)
 			{
 				selected = !selected;
 			}

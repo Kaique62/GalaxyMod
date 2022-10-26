@@ -15,7 +15,6 @@ import flixel.FlxSprite;
 import flixel.FlxState;
 import flixel.FlxStrip;
 import flixel.FlxSubState;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.display.FlxGridOverlay;
 import flixel.addons.effects.FlxTrail;
 import flixel.addons.effects.FlxTrailArea;
@@ -53,6 +52,10 @@ import openfl.display.BlendMode;
 import openfl.display.StageQuality;
 import openfl.filters.ShaderFilter;
 import openfl.utils.Assets;
+import ui.FlxVirtualPad;
+import extension.videoview.VideoView;
+import ui.Mobilecontrols;
+import sys.FileSystem;
 
 using StringTools;
 
@@ -78,6 +81,10 @@ class PlayState extends MusicBeatState
 	public static var maxc:Int = 0;
 	public static var keym:Int = 0;
 	public static var inp:Int = 0;
+
+	#if mobileC
+	var mcontrols:Mobilecontrols; 
+	#end
 
 	public static var correctChart:Bool = false;
 
@@ -589,12 +596,27 @@ class PlayState extends MusicBeatState
 		doof.unfinish = cutscene;
 		switch (SONG.song.toLowerCase())
 		{
+
 			case "kastimagina":
-				doof.outro = false;
-				doof.finishThing = bossVideo;
+				if(!FileSystem.exists(SUtil.getPath() + Paths.video(SONG.song.toLowerCase() + "/" + storyDifficulty)))
+					{
+						doof.outro = false;
+						doof.finishThing = startCountdown;							
+					}
+				else{
+					doof.outro = false;
+					doof.finishThing = 	v1;
+				}
 			case "peace":
-				doof.outro = false;
-				doof.finishThing = bossVideo;
+				if(!FileSystem.exists(SUtil.getPath() + Paths.video(SONG.song.toLowerCase() + "/" + storyDifficulty)))
+					{
+						doof.outro = false;
+						doof.finishThing = startCountdown;					
+					}
+				else{
+					doof.outro = false;
+					doof.finishThing = 	v2;
+				}
 		}
 
 		Conductor.songPosition = -5000;
@@ -678,6 +700,28 @@ class PlayState extends MusicBeatState
 		iconP2.cameras = [camHUD];
 		scoreTxt.cameras = [camHUD];
 		doof.cameras = [camDia];
+
+		#if mobileC
+			mcontrols = new Mobilecontrols();
+			switch (mcontrols.mode)
+			{
+				case VIRTUALPAD_RIGHT | VIRTUALPAD_LEFT | VIRTUALPAD_CUSTOM:
+					controls.setVirtualPad(mcontrols._virtualPad, FULL, NONE);
+				case HITBOX:
+					controls.setHitBox(mcontrols._hitbox);
+				default:
+			}
+			
+			trackedinputs = controls.trackedinputs;
+			controls.trackedinputs = [];
+
+			var camcontrol = new FlxCamera();
+			FlxG.cameras.add(camcontrol);
+			camcontrol.bgColor.alpha = 0;
+			mcontrols.cameras = [camcontrol];
+			add(mcontrols);
+		#end
+
 		if (SONG.song.toLowerCase() == "familanna")
 		{
 			for (i in 0...4)
@@ -855,6 +899,21 @@ class PlayState extends MusicBeatState
 
 		super.create();
 	}
+
+function v1(){
+	VideoView.playVideo(SUtil.getPath() + Paths.video('kastimagina' + "/" + storyDifficulty));
+					VideoView.onCompletion = function()
+					{
+						startCountdown();
+					};
+}
+function v2(){
+	VideoView.playVideo(SUtil.getPath() + Paths.video('peace' + "/" + storyDifficulty));
+					VideoView.onCompletion = function()
+					{
+						startCountdown();
+					};
+}
 
 	function schoolIntro(?dialogueBox:DialogueBox, numbbb:Int = 0):Void
 	{
@@ -1035,14 +1094,6 @@ class PlayState extends MusicBeatState
 		}
 	}
 
-	function bossVideo():Void
-	{
-		var video:BossVideo = new BossVideo();
-		video.finishCallback = startCountdown;
-		video.canSkip = StoryMenuState.weekPassed[Std.int(Math.min(storyWeek, StoryMenuState.weekPassed.length - 1))][storyDifficulty];
-		video.playVideo(Paths.video(SONG.song.toLowerCase() + "/" + storyDifficulty));
-		FlxG.sound.playMusic(Paths.music(SONG.song.toLowerCase()), 1, false);
-	}
 
 	function cutscene():Void
 	{
@@ -1657,28 +1708,14 @@ class PlayState extends MusicBeatState
 				specialoutro = "peace1";
 			case "peace1":
 				anime2.alpha += 0.05;
-				if (FlxG.mouse.justPressed)
-				{
-					#if linux
-					Sys.command('/usr/bin/xdg-open', ["https://allen98637.github.io/games/ninkmi", "&"]);
-					#else
-					FlxG.openURL("https://allen98637.github.io/games/ninkmi");
-					#end
-				}
+
 				if (anime2.alpha >= 1)
 				{
 					anime2.alpha = 1;
 					specialoutro = "peace2";
 				}
 			case "peace2":
-				if (FlxG.mouse.justPressed)
-				{
-					#if linux
-					Sys.command('/usr/bin/xdg-open', ["https://allen98637.github.io/games/ninkmi", "&"]);
-					#else
-					FlxG.openURL("https://allen98637.github.io/games/ninkmi");
-					#end
-				}
+
 				if (controls.ACCEPT)
 					realEnd();
 		}
@@ -2369,27 +2406,6 @@ class PlayState extends MusicBeatState
 		if (FlxG.save.data.trophies == null)
 			FlxG.save.data.trophies = [];
 
-		if (isStoryMode)
-		{
-			if (storyPlaylist.length <= 0 && storyDifficulty == 2)
-			{
-				if (storyWeek != 0)
-				{
-					if (!FlxG.save.data.trophies.contains(APIStuff.comWeek[storyWeek]))
-						FlxG.save.data.trophies.push(APIStuff.comWeek[storyWeek]);
-				}
-			}
-		}
-		if (misses == 0 && bads == 0 && shits == 0 && wrongs == 0 && APIStuff.fcs.exists(SONG.song) && storyDifficulty == 2)
-		{
-			if (!FlxG.save.data.trophies.contains(APIStuff.fcs.get(SONG.song)))
-				FlxG.save.data.trophies.push(APIStuff.fcs.get(SONG.song));
-		}
-		if (APIStuff.comSong.exists(SONG.song + "-" + storyDifficulty))
-		{
-			if (!FlxG.save.data.trophies.contains(APIStuff.comSong.get(SONG.song + "-" + storyDifficulty)))
-				FlxG.save.data.trophies.push(APIStuff.comSong.get(SONG.song + "-" + storyDifficulty));
-		}
 
 		trace(FlxG.save.data.trophies);
 		return;
@@ -2664,7 +2680,7 @@ class PlayState extends MusicBeatState
 		var rightR = controls.RIGHT_R;
 		var downR = controls.DOWN_R;
 		var leftR = controls.LEFT_R;
-		switch (keym)
+	/*()	switch (keym)
 		{
 			case 1:
 				up = FlxG.keys.pressed.J;
@@ -2726,7 +2742,7 @@ class PlayState extends MusicBeatState
 				rightR = FlxG.keys.justReleased.K;
 				downR = FlxG.keys.justReleased.DOWN;
 				leftR = FlxG.keys.justReleased.LEFT;
-		}
+		}*/
 
 		var controlArray:Array<Bool> = [leftP, downP, upP, rightP];
 
@@ -2941,7 +2957,7 @@ class PlayState extends MusicBeatState
 		var rightP = controls.RIGHT_P;
 		var downP = controls.DOWN_P;
 		var leftP = controls.LEFT_P;
-		switch (keym)
+	/*	switch (keym)
 		{
 			case 1:
 				upP = FlxG.keys.justPressed.J;
@@ -2963,7 +2979,7 @@ class PlayState extends MusicBeatState
 				rightP = FlxG.keys.justPressed.K;
 				downP = FlxG.keys.justPressed.DOWN;
 				leftP = FlxG.keys.justPressed.LEFT;
-		}
+		} */
 
 		if (leftP)
 			noteMiss(0);
@@ -3156,6 +3172,7 @@ class PlayState extends MusicBeatState
 				trainReset();
 		}
 	}
+
 
 	function updateUFO():Void
 	{

@@ -3,7 +3,6 @@ package;
 import flash.display.BitmapData;
 import flixel.FlxG;
 import flixel.FlxSprite;
-import flixel.addons.api.FlxGameJolt;
 import flixel.addons.text.FlxTypeText;
 import flixel.graphics.FlxGraphic;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -85,10 +84,9 @@ class Welcome extends FlxSpriteGroup
 		add(icon);
 		if (mode == 0)
 		{
-			FlxGameJolt.fetchUser(0, FlxG.save.data.userName, [], function(k:Dynamic)
-			{
-				icon.loadGraphic(k.get("avatar_url"));
-			});
+			time = 5;
+			order = -1;
+			text.text = "Trophy Get!";
 		}
 
 		if (mode == 1)
@@ -102,8 +100,6 @@ class Welcome extends FlxSpriteGroup
 	override function update(elapsed:Float)
 	{
 		super.update(elapsed);
-		if (!FlxGameJolt.initialized)
-			return;
 		switch (mode)
 		{
 			case 0:
